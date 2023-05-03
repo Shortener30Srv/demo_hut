@@ -5,11 +5,13 @@ def main_func1():
     Т.е у тебя метаязык, число_повторений{что_повторяем}, некоторой степени вложенности
     :return:
     """
-    proc_str(in_str='2{as3{qwe}}')
+    proc_str(in_str='2{as3{qwe}}', do_print=True)
+    proc_str_vai_eval(in_str='2{as3{qwe}}', do_print=True)
     assert proc_str(in_str='2{as3{qwe}}') == 'asqweqweqweasqweqweqwe'
+    assert proc_str_vai_eval(in_str='2{as3{qwe}}') == 'asqweqweqweasqweqweqwe'
 
 
-def proc_str(in_str: str = '', do_print: bool = True) -> str:
+def proc_str(in_str: str = '', do_print: bool = False) -> str:
     if do_print:
         print(f'{in_str}', end=' -> ')
     sublines = in_str.split('{')
@@ -34,6 +36,40 @@ def out_str(do_times: int, in_str: str) -> str:
     # for _i in range(do_times):
     #     str_out = str_out + in_str
     return str_out
+
+
+def proc_str_vai_eval(in_str: str = '', do_print: bool = False) -> str:
+    if do_print:
+        print(f'{in_str}', end=' -> ')
+    line_in = in_str
+    not_first_digit = False
+    prev_closed_bracket = False
+    expression_for_eval = ''
+    for _each_letter in line_in:
+        step_repl = ''
+        if _each_letter.isnumeric():
+            if not_first_digit:
+                step_repl = '" + ' + str(_each_letter) + '*'
+            else:
+                step_repl = str(_each_letter) + '*'
+                not_first_digit = True
+        elif _each_letter == '{':
+            step_repl = '("'
+        elif _each_letter == '}':
+            if prev_closed_bracket:
+                step_repl = ')'
+            else:
+                step_repl = '")'
+            prev_closed_bracket = True
+        else:
+            step_repl = _each_letter
+            if _each_letter != '}':
+                prev_closed_bracket = False
+        expression_for_eval = expression_for_eval + step_repl
+    line_out = eval(expression_for_eval)
+    if do_print:
+        print(f'{line_out}')
+    return line_out
 
 
 if __name__ == '__main__':
